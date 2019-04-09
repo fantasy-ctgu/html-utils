@@ -1,4 +1,6 @@
+// 表单正则匹配
 /**
+ *
  * 判断非空
  * @param {inputDOM} obj input对象
  */
@@ -119,6 +121,8 @@ function checkPhone(obj) {
     }
 }
 
+// 表单正则匹配结束
+
 /**
  * 判断两input内值是否相等
  * @param {String} inputId1 第一个input的id 
@@ -136,10 +140,11 @@ function compareInput(inputId1, inputId2) {
 
 /**
  * 构造表单参数：json
- * @param {DOM} obj 
+ * @param {DOM} obj 当前节点对象
+ * @param {DOM} parentLabel 父级标签
  */
-function getDataToJson(obj) {
-    var formDOM = $(obj).parents("form");
+function getDataToJson(obj,parentLabel = "form") {
+    var formDOM = $(obj).parents(parentLabel);
     var varList = $(formDOM).find("[name]");
     var data = {};
     varList.each(function () {
@@ -167,7 +172,7 @@ function checkForm(obj) {
         var checkFun = $(this).attr("check");
         if (checkFun && /(\S+)/.test(checkFun)) {
             if (!eval(checkFun)) {
-                $(this).addClass("has_error");
+                $(this).addClass("inp_error");
                 $(this).focus();
                 flag = false;
                 console.error(this);
@@ -179,9 +184,36 @@ function checkForm(obj) {
 				}
                 return false;
             }
-            $(this).removeClass("has_error");
+            $(this).removeClass("inp_error");
         }
     });
     if (!flag) return;
+    varList.each(function () {
+        if ($(this).val() == "") {
+            $(this).attr("name","");
+        }
+    });
     formDOM.submit();
+}
+
+
+function checkChange(obj){
+	$(obj).each(function(){
+		var checkFun = $(obj).attr("check");
+		if (checkFun && /(\S+)/.test(checkFun)) {
+			if (!eval(checkFun)) {
+				$(this).addClass("inp_error");
+				$(this).focus();
+				console.error(this);
+				var errmsg = $.trim($(this).attr("errmsg"));
+				if(errmsg){
+					console.error(errmsg);
+				}else{
+					console.error("请按要求填写所有信息");
+				}
+				return false;
+			}
+			$(this).removeClass("inp_error");
+		}
+	});
 }
