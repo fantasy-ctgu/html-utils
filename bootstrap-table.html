@@ -182,7 +182,10 @@
         }, {
           field: 'name',
           title: '名字',
-          align: 'center'
+          align: 'center',
+          formatter: function (value, row, index) {
+            return value + "suffix";
+          }
         }, {
           field: 'price',
           title: '价格',

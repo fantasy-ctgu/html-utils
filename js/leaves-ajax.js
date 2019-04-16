@@ -25,3 +25,24 @@ function delDataInTable(url, obj = null) {
         });
     }
 }
+
+function updData(url,obj){
+	if(checkNameDOM(obj)){
+		$.ajax({
+			url: url,
+			method: "post",
+			dataType: "json",
+			data: getDataToJson(obj),
+			success: function (msg) {
+				if (msg == "1") {
+					alert("修改成功");
+				} else {
+					alert("修改失败");
+				}
+			},
+			error: function (params) {
+				alert("系统错误");
+			}
+		});
+	}
+}

@@ -140,10 +140,9 @@ function compareInput(inputId1, inputId2) {
 
 /**
  * 构造表单参数：json
- * @param {DOM} obj 当前节点对象
- * @param {DOM} parentLabel 父级标签
+ * @param {DOM} obj 
  */
-function getDataToJson(obj,parentLabel = "form") {
+function getDataToJson(obj, parentLabel = "form") {
     var formDOM = $(obj).parents(parentLabel);
     var varList = $(formDOM).find("[name]");
     var data = {};
@@ -161,10 +160,12 @@ function getDataToJson(obj,parentLabel = "form") {
 }
 
 /**
- * 判断是否可以提交表单
- * @param {DOM} obj 
+ * 
+ * @param {DOM} obj 调用对象
+ * @param {String} parentLabel 向上查找至parentLabel
+ * @param {boolean} removeNullLabel 是否移除空name属性
  */
-function checkForm(obj) {
+function checkNameDOM(obj, parentLabel = "form", removeNullLabel = false) {
     var formDOM = $(obj).parents("form");
     var varList = $(formDOM).find("[name]");
     var flag = true;
@@ -176,44 +177,69 @@ function checkForm(obj) {
                 $(this).focus();
                 flag = false;
                 console.error(this);
-				var errmsg = $.trim($(this).attr("errmsg"));
-				if(errmsg){
-					alert(errmsg);
-				}else{
-					alert("请按要求填写所有信息");
-				}
+                var errmsg = $.trim($(this).attr("errmsg"));
+                if (errmsg) {
+                    alert(errmsg);
+                } else {
+                    alert("请按要求填写所有信息");
+                }
                 return false;
             }
             $(this).removeClass("inp_error");
         }
     });
-    if (!flag) return;
-    varList.each(function () {
-        if ($(this).val() == "") {
-            $(this).attr("name","");
-        }
-    });
-    formDOM.submit();
+    if (removeNullLabel) {
+        varList.each(function () {
+            if ($(this).val() == "") {
+                $(this).attr("name", "");
+            }
+        });
+    }
+    return flag;
 }
 
+/**
+ * 判断是否可以提交表单
+ * @param {DOM} obj 
+ */
+function checkForm(obj) {
+    if (checkNameDOM(obj, "form", true)) $(obj).parents("form").submit();
+}
 
-function checkChange(obj){
-	$(obj).each(function(){
-		var checkFun = $(obj).attr("check");
-		if (checkFun && /(\S+)/.test(checkFun)) {
-			if (!eval(checkFun)) {
-				$(this).addClass("inp_error");
-				$(this).focus();
-				console.error(this);
-				var errmsg = $.trim($(this).attr("errmsg"));
-				if(errmsg){
-					console.error(errmsg);
-				}else{
-					console.error("请按要求填写所有信息");
-				}
-				return false;
-			}
-			$(this).removeClass("inp_error");
-		}
-	});
+/**
+ * 焦点移出时判断
+ * @param {DOM} obj 出发对象
+ */
+function checkChange(obj) {
+    $(obj).each(function () {
+        var checkFun = $(obj).attr("check");
+        if (checkFun && /(\S+)/.test(checkFun)) {
+            if (!eval(checkFun)) {
+                $(this).addClass("inp_error");
+                $(this).focus();
+                console.error(this);
+                var errmsg = $.trim($(this).attr("errmsg"));
+                if (errmsg) {
+                    console.error(errmsg);
+                } else {
+                    console.error("请按要求填写所有信息");
+                }
+                return false;
+            }
+            $(this).removeClass("inp_error");
+        }
+    });
+}
+
+/**
+ * 判断obj是否包含属性name值为namestr的对象
+ * @param {DOM} obj 判断对象
+ * @param {*} name 查找对象
+ */
+function checkHasName(obj, name) {
+    if ($(obj).find("[name=" + name + "]").length <= 0) {
+        return false;
+    } else {
+        return true;
+    }
 }

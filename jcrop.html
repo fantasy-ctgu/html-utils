@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>图片上传</title>
+    <link rel="stylesheet" href="module/jcrop/css/jquery.Jcrop.min.css" />
+    <link rel="stylesheet" href="module/jcrop/css/demos.css" />
+    <link rel="stylesheet" href="module/jcrop/css/main.css" />
+    <style>
+        .optdual {
+            position: relative;
+        }
+
+        .optdual .offset {
+            position: absolute;
+            left: 18em;
+        }
+
+        .optlist label {
+            width: 16em;
+            display: block;
+        }
+
+        #dl_links {
+            margin-top: .5em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="span12">
+                <div class="jc-demo-box">
+                    <img src="module/jcrop/img/sago.jpg" id="target" alt="[Jcrop Example]" />
+
+                    <div class="clearfix"></div>
+                    <form action="crop.php" method="post" onsubmit="return checkCoords();">
+                        <input type="hidden" id="x" name="x" />
+                        <input type="hidden" id="y" name="y" />
+                        <input type="hidden" id="w" name="w" />
+                        <input type="hidden" id="h" name="h" />
+                        <input type="submit" value="Crop Image" class="btn btn-large btn-inverse" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="module/jcrop/js/jquery.Jcrop.js"></script>
+<script type="text/javascript" src="module/jcrop/js/api.js"></script>
+<script>
+    var jcrop_api;
+
+    // In this example, since Jcrop may be attached or detached
+    // at the whim of the user, I've wrapped the call into a function
+    initJcrop();
+
+    // The function is pretty simple
+    function initJcrop() //{{{
+    {
+        // Hide any interface elements that require Jcrop
+        // (This is for the local user interface portion.)
+        $('.requiresjcrop').hide();
+
+        // Invoke Jcrop in typical fashion
+        $('#target').Jcrop({
+            onRelease: releaseCheck,
+            onSelect: updateCoords
+        }, function () {
+
+            jcrop_api = this;
+            jcrop_api.animateTo([100, 100, 400, 300]);
+            // Setup and dipslay the interface for "enabled"
+            $('#can_click,#can_move,#can_size').attr('checked', 'checked');
+            $('#ar_lock,#size_lock,#bg_swap').attr('checked', false);
+            $('.requiresjcrop').show();
+
+        });
+
+    };
+
+    function updateCoords(c) {
+        $('#x').val(c.x);
+        $('#y').val(c.y);
+        $('#w').val(c.w);
+        $('#h').val(c.h);
+    };
+
+    function checkCoords() {
+        if (parseInt($('#w').val())) return true;
+        alert('Please select a crop region then press submit.');
+        return false;
+    };
+    // var jcrop_api = $.Jcrop('#cropbox', {
+    //     /*  aspectRatio:2/1, //这是宽高比*/
+    //     // minSize: [600, 300], //最小宽度，和高度
+    //     // maxSize: [600, 300], //最大宽度，和高度
+    //     allowSelect: true,
+    //     // setSelect: [0, 0, 600, 300], //初始区域
+    //     /*   bgColor:"#fff"颜色设置*/
+    //     /*  bgOpacity:0.1 透明度设置*/
+    //     boxWidth: 400, //同比缩放宽，和同比缩放高是一样的，一般来说设置一个就够了
+    //     onSelect: function (p) { //当选择完成时调用
+    //         console.log(p);
+    //     }
+    // });
+
+    // $('button.setSelect').click(function () {
+    //     jcrop_api.setSelect([100, 100, 300, 300]);
+    // });
+    // $('button.tellSelect').click(function () {
+    //     console.log(jcrop_api.tellSelect());
+    // });
+</script>
+
+</html>
