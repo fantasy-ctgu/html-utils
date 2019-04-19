@@ -5,11 +5,16 @@
   <title>leaves-table</title>
   <meta charset="utf-8">
   <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="module/bootstrap-table/bootstrap-table.min.css">
   <script type="text/javascript" src='js/jquery.min.js'></script>
   <script type="text/javascript" src='js/bootstrap.min.js'></script>
   <!-- bootstrap table-->
+
+  <link rel="stylesheet" href="module/bootstrap-table/bootstrap-table.min.css">
+  <link rel="stylesheet" href="module/bootstrap-editable/css/bootstrap-editable.css">
+  <script type="text/javascript" src='module/bootstrap-editable/js/bootstrap-editable.min.js'></script>
   <script type="text/javascript" src='module/bootstrap-table/bootstrap-table.min.js'></script>
+  <script type="text/javascript" src='module/bootstrap-table/extensions/editable/bootstrap-table-editable.js'></script>
+  <script type="text/javascript" src='module/bootstrap-table/locale/bootstrap-table-zh-CN.js'></script>
 </head>
 
 <body>
@@ -151,13 +156,15 @@
       // method: 'get', //请求方式（*）
       // toolbar: '#toolbar', //工具按钮用哪个容器
       data: data,
+      editable: true, //是否开启编辑模式
       striped: true, //是否显示行间隔色
       cache: false, //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
       pagination: true, //是否显示分页（*）
       showPaginationSwitch: true, // 是否显示"所有数据/分页数据切换"按钮
       sortable: true, //是否启用排序
       sortOrder: "asc", //排序方式
-      showToggle: true, //table 与card view mode切换
+      showToggle: true, //是否显示详细视图和列表视图的切换按钮
+      // height: 500, //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
       // queryParams: oTableInit.queryParams, //传递参数（*）
       sidePagination: "client", //分页方式：client客户端分页，server服务端分页（*）
       pageNumber: 1, //初始化加载第一页，默认第一页
@@ -165,19 +172,21 @@
       pageList: [10, 25, 50, 100], //可供选择的每页的行数（*）
       search: true, //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
       // contentType: "application/x-www-form-urlencoded",
+      // uniqueId: 'index', //将index列设为唯一索引
       strictSearch: true,
       showColumns: true, //是否显示所有的列
       showRefresh: true, //是否显示刷新按钮
       minimumCountColumns: 2, //最少允许的列数
       clickToSelect: true, //是否启用点击选中行
       // height: 700, //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
-      uniqueId: "no", //每一行的唯一标识，一般为主键列
       showToggle: false, //是否显示详细视图和列表视图的切换按钮
       cardView: false, //是否显示详细视图
       detailView: false, //是否显示父子表
+      paginationPreText: "<<",
+      paginationNextText: ">>",
       columns: [{
           field: 'id',
-          title: 'ID',
+          title: 'ID1',
           align: 'center'
         }, {
           field: 'name',
@@ -185,6 +194,13 @@
           align: 'center',
           formatter: function (value, row, index) {
             return value + "suffix";
+          },
+          editable: {
+            type: 'text',
+            title: '名字',
+            validate: function (v) {
+              if (!v) return '用户名不能为空';
+            }
           }
         }, {
           field: 'price',
@@ -215,19 +231,41 @@
         },
         {
           field: 'amount',
-          title: 'amount',
+          title: 'amount1',
           align: 'center',
           sortable: true,
           valign: 'middle',
           rowspan: 1,
           sorter: nameSort,
+          editable: {
+            type: 'select',
+            title: '部门',
+            source: function () {
+              var result = [];
+              $.ajax({
+                url: '/getData',
+                async: false,
+                type: "get",
+                data: {},
+                success: function (data, status) {
+                  $.each(data, function (key, value) {
+                    result.push({
+                      value: value.ID,
+                      text: value.Name
+                    });
+                  });
+                }
+              });
+              return result;
+            }
+          }
         },
         {
-          field: '操作',
-          title: '操作',
+          field: 'operate',
+          title: '操作1',
           align: 'center',
+          formatter: operateFormatter,
           events: operateEvents,
-          formatter: operateFormatter
         },
       ],
       onEditableSave: function (field, row, oldValue, $el) {
@@ -239,20 +277,17 @@
           dataType: 'JSON',
           success: function (data, status) {
             if (status == "success") {
-              layer.alert('提交数据成功');
+              alert('提交数据成功');
             }
           },
           error: function () {
-            layer.alert('编辑失败');
+            alert('编辑失败');
           },
-          complete: function () {
-
-          }
-
+          complete: function () {}
         });
       },
     };
-    $("table").bootstrapTable($.tableConfig);
+    $("#table").bootstrapTable($.tableConfig);
 
     // The context (this) is the column Object. The cell formatter function
     function operateFormatter(value, row, index, field) {
@@ -269,6 +304,7 @@
     // Object The cell events listener when you use formatter function
     var operateEvents = {
       'click .like': function (e, value, row, index) {
+        console.log(1);
         alert('You click like action, row: ' + JSON.stringify(row));
       },
       'click .remove': function (e, value, row, index) {
@@ -295,6 +331,46 @@
       if (a > b) return 1;
       if (a < b) return -1;
       return 0;
+    }
+
+    function addRow() {
+      var count = $('#table').bootstrapTable('getData').length;
+      // newFlag == 1的数据为新规的数据
+      $('#table').bootstrapTable('insertRow', {
+        index: 0,
+        row: {
+          proName: '',
+          proNo: '',
+          property: '',
+          total: '',
+          unit: '',
+          totalAmount: '',
+          remarks: ''
+
+        }
+      });
+    }
+
+    function del(id) {
+      var r = confirm("是否删除该授权人信息");
+      if (r) {
+        $.ajax({
+          type: "GET",
+          url: GetRootName() + '/Project/Project/DelPower',
+          data: {
+            ID: id
+          },
+          dataType: "json",
+          cache: false,
+          async: false,
+          success: function (data) {
+            $("#powerTable").bootstrapTable('remove', {
+              field: 'ID',
+              value: id
+            });
+          }
+        });
+      }
     }
   </script>
 </body>
