@@ -20,6 +20,7 @@
 <body>
   <div class="container">
     <h1>Resizable</h1>
+    <button onclick="addRow()">增加</button>
     <table id="table">
     </table>
   </div>
@@ -208,6 +209,7 @@
           sortable: true,
           align: 'center',
           sorter: priceSort,
+          visible: false,
           editable: {
             type: 'text',
             title: 'Item Price',
@@ -292,11 +294,11 @@
     // The context (this) is the column Object. The cell formatter function
     function operateFormatter(value, row, index, field) {
       return [
-        '<a class="like" href="javascript:void(0)" title="Like">',
+        '<a class="like" href="javascript:void(0)" title="Like" id="like">',
         '<i class="glyphicon glyphicon-heart"></i>',
         '</a>  ',
-        '<a class="remove" href="javascript:void(0)" title="Remove">',
-        '<i class="glyphicon glyphicon-remove"></i>',
+        '<a class="remove" href="javascript:void(0)" title="Remove" id="remove">',
+        '<i class="glyphicon glyphicon-remove" onclick="delRow(' + row['id'] + ')"></i>',
         '</a>'
       ].join('');
     }
@@ -346,13 +348,12 @@
           unit: '',
           totalAmount: '',
           remarks: ''
-
         }
       });
     }
 
-    function del(id) {
-      var r = confirm("是否删除该授权人信息");
+    function delRow(id) {
+      var r = confirm("是否删除该条信息");
       if (r) {
         $.ajax({
           type: "GET",

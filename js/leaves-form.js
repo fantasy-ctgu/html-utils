@@ -121,6 +121,44 @@ function checkPhone(obj) {
     }
 }
 
+/**
+ * 
+ * @param {DOM} obj DOM对象
+ * @param {String} url 服务器地址
+ */
+function checkServerValue(obj, url) {
+    var flag = false;
+    if (checkNotEmpty(obj)) {
+        var dataStr = {};
+        dataStr[$(obj).attr("name")] = $(obj).val();
+        $.ajax({
+            url: url,
+            type: "post",
+            dataType: "json",
+            async: false,
+            data: dataStr,
+            success: function (msg) {
+                if (msg == "1") {
+                    flag = true;
+                } else {
+                    flag = false;
+                }
+            },
+            /**
+             * 
+             * @param {*} XMLHttpRequest 错误信息、捕获的错误对象
+             * @param {*} textStatus timeout、error、notmodified、parsererror
+             * @param {*} errorThrown 
+             */
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("系统错误");
+                console.error(XMLHttpRequest);
+            }
+        });
+    }
+    return flag;
+}
+
 // 表单正则匹配结束
 
 /**
@@ -202,8 +240,8 @@ function checkNameDOM(obj, parentLabel = "form", removeNullLabel = false) {
  * 判断是否可以提交表单
  * @param {DOM} obj 
  */
-function checkForm(obj) {
-    if (checkNameDOM(obj, "form", true)) $(obj).parents("form").submit();
+function checkForm(obj, removeNullLabel = false) {
+    if (checkNameDOM(obj, "form", removeNullLabel)) $(obj).parents("form").submit();
 }
 
 /**

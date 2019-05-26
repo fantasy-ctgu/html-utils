@@ -7,8 +7,9 @@ function delDataInTable(url, obj = null) {
     if (confirm("确定删除此条信息吗?")) {
         $.ajax({
             url: url,
-            method: "get",
+            type: "get",
             dataType: "json",
+            async: true,
             success: function (msg) {
                 if (msg == "1") {
                     alert("删除成功");
@@ -19,8 +20,15 @@ function delDataInTable(url, obj = null) {
                     alert("删除失败");
                 }
             },
-            error: function (params) {
+            /**
+             * 
+             * @param {*} XMLHttpRequest 错误信息、捕获的错误对象
+             * @param {*} textStatus timeout、error、notmodified、parsererror
+             * @param {*} errorThrown 
+             */
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
                 alert("系统错误");
+                console.error(XMLHttpRequest);
             }
         });
     }
@@ -30,7 +38,7 @@ function updData(url,obj){
 	if(checkNameDOM(obj)){
 		$.ajax({
 			url: url,
-			method: "post",
+			type: "post",
 			dataType: "json",
 			data: getDataToJson(obj),
 			success: function (msg) {
@@ -39,9 +47,16 @@ function updData(url,obj){
 				} else {
 					alert("修改失败");
 				}
-			},
-			error: function (params) {
-				alert("系统错误");
+            },
+            /**
+             * 
+             * @param {*} XMLHttpRequest 错误信息、捕获的错误对象
+             * @param {*} textStatus timeout、error、notmodified、parsererror
+             * @param {*} errorThrown 
+             */
+			error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("系统错误");
+                console.error(XMLHttpRequest);
 			}
 		});
 	}
