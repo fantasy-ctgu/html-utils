@@ -1,3 +1,11 @@
+<!--
+ * @Author: Fantasy
+ * @Date: 2019-04-30 17:08:59
+ * @LastEditors: Fantasy
+ * @LastEditTime: 2019-06-08 10:31:33
+ * @Descripttion: 
+ * @Email: 776474961@qq.com
+ -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -102,7 +110,7 @@
             <hr>
             <div class="row">
                 <div class="col-md-12">
-                    <h3>垂直方式（仅支持square 和round 模式）</h3>
+                    <h3 id="targetScroll">垂直方式（仅支持square 和round 模式）</h3>
                     <h4 class="text-danger">注意垂直方式需定义ul宽度或者给予其父级宽度！</h4>
                 </div>
                 <div class="col-md-4">
@@ -148,6 +156,9 @@
             </div>
         </div>
     </div>
+    <div style="position: fixed;width:50px;height:50px;background-color:red;right:30px;bottom:30px;" id="triggerScroll"></div>
 </body>
-
+<script>
+    initScroll("triggerScroll","targetScroll",100);
+</script>
 </html>

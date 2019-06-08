@@ -1,4 +1,12 @@
-// 表单正则匹配
+/*
+ * @Author: Fantasy
+ * @Date: 2019-04-02 12:29:05
+ * @LastEditors: Fantasy
+ * @LastEditTime: 2019-06-07 15:51:49
+ * @Descripttion: 表单正则匹配
+ * @Email: 776474961@qq.com
+ */
+
 /**
  *
  * 判断非空
@@ -120,45 +128,6 @@ function checkPhone(obj) {
         return false;
     }
 }
-
-/**
- * 
- * @param {DOM} obj DOM对象
- * @param {String} url 服务器地址
- */
-function checkServerValue(obj, url) {
-    var flag = false;
-    if (checkNotEmpty(obj)) {
-        var dataStr = {};
-        dataStr[$(obj).attr("name")] = $(obj).val();
-        $.ajax({
-            url: url,
-            type: "post",
-            dataType: "json",
-            async: false,
-            data: dataStr,
-            success: function (msg) {
-                if (msg == "1") {
-                    flag = true;
-                } else {
-                    flag = false;
-                }
-            },
-            /**
-             * 
-             * @param {*} XMLHttpRequest 错误信息、捕获的错误对象
-             * @param {*} textStatus timeout、error、notmodified、parsererror
-             * @param {*} errorThrown 
-             */
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                alert("系统错误");
-                console.error(XMLHttpRequest);
-            }
-        });
-    }
-    return flag;
-}
-
 // 表单正则匹配结束
 
 /**
@@ -198,7 +167,7 @@ function getDataToJson(obj, parentLabel = "form") {
 }
 
 /**
- * 
+ * 判断包含obj的parentLabel域里的所有input是否合法
  * @param {DOM} obj 调用对象
  * @param {String} parentLabel 向上查找至parentLabel
  * @param {boolean} removeNullLabel 是否移除空name属性
@@ -248,7 +217,7 @@ function checkForm(obj, removeNullLabel = false) {
  * 焦点移出时判断
  * @param {DOM} obj 出发对象
  */
-function checkChange(obj) {
+function checkBlur(obj) {
     $(obj).each(function () {
         var checkFun = $(obj).attr("check");
         if (checkFun && /(\S+)/.test(checkFun)) {
@@ -267,17 +236,4 @@ function checkChange(obj) {
             $(this).removeClass("inp_error");
         }
     });
-}
-
-/**
- * 判断obj是否包含属性name值为namestr的对象
- * @param {DOM} obj 判断对象
- * @param {*} name 查找对象
- */
-function checkHasName(obj, name) {
-    if ($(obj).find("[name=" + name + "]").length <= 0) {
-        return false;
-    } else {
-        return true;
-    }
 }
