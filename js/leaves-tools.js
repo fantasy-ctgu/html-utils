@@ -32,7 +32,6 @@ String.prototype.strip = function (flag = false) {
  * @param {String} targetId 
  */
 function initScroll(triggerId, targetId = false, duration = 800) {
-	console.log(triggerId);
 	$(window).scroll(function () {
 		if ($(window).scrollTop() >= 100) {
 			$id(triggerId).fadeIn(300);

@@ -1,122 +1,222 @@
-<!doctype html>
-<html>
+<!--
+ * @Author: Fantasy
+ * @Date: 2019-04-13 21:30:58
+ * @LastEditors: Fantasy
+ * @LastEditTime: 2019-07-26 18:49:43
+ * @Descripttion: 
+ * @Email: 776474961@qq.com
+ -->
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>leaves</title>
+    <link rel="shortcut icon" href="img/Windmill.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/leaves.css">
 
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
-    <title>图片上传</title>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/leaves-form.js"></script>
+    <script src="js/leaves-ajax.js"></script>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="module/jcrop/css/jquery.Jcrop.min.css" />
-    <link rel="stylesheet" href="module/jcrop/css/demos.css" />
-    <link rel="stylesheet" href="module/jcrop/css/main.css" />
-    <style>
-        .optdual {
-            position: relative;
-        }
+    <!-- <link rel="stylesheet" href="module/jcrop/css/demos.css" /> -->
+    <!-- <link rel="stylesheet" href="module/jcrop/css/main.css" /> -->
+    <style type="text/css">
+        /* Apply these styles only when #preview-pane has
+       been placed within the Jcrop widget */
 
-        .optdual .offset {
-            position: absolute;
-            left: 18em;
-        }
-
-        .optlist label {
-            width: 16em;
+        .jcrop-holder #preview-pane {
             display: block;
+            position: absolute;
+            z-index: 2000;
+            top: 10px;
+            right: -230px;
+            padding: 6px;
+            border: 1px rgba(0, 0, 0, .4) solid;
+            background-color: white;
+
+            -webkit-border-radius: 6px;
+            -moz-border-radius: 6px;
+            border-radius: 6px;
+
+            -webkit-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
         }
 
-        #dl_links {
-            margin-top: .5em;
+        /* The Javascript code will set the aspect ratio of the crop
+        area based on the size of the thumbnail preview,
+       specified here */
+        #preview-pane .preview-container {
+            width: 200px;
+            height: 200px;
+            overflow: hidden;
         }
     </style>
 </head>
 
 <body>
+    <div class="modal fade" id="jcropModal" tabindex="-1" role="dialog" aria-labelledby="jcropModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" style="width: 850px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="jcropModalLabel">裁剪</h4>
+                </div>
+                <div class="modal-body">
+                    <img alt="" src="" id="cutimg" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">保存</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
     <div class="container">
         <div class="row">
-            <div class="span12">
-                <div class="jc-demo-box">
-                    <img src="module/jcrop/img/sago.jpg" id="target" alt="[Jcrop Example]" />
-
-                    <div class="clearfix"></div>
-                    <form action="crop.php" method="post" onsubmit="return checkCoords();">
-                        <input type="hidden" id="x" name="x" />
-                        <input type="hidden" id="y" name="y" />
-                        <input type="hidden" id="w" name="w" />
-                        <input type="hidden" id="h" name="h" />
-                        <input type="submit" value="Crop Image" class="btn btn-large btn-inverse" />
-                    </form>
+            <form name="form" action="#" class="form-horizontal " method="post" enctype="multipart/form-data">
+                <div class="modal-body text-center">
+                    <div class="">
+                        <div class="">
+                            <input class="photo-file" type="file" name="imgFile" id="file" onchange="load_img(this);" />
+                            <input type="hidden" id="cut_x" name="cut_x" />
+                            <input type="hidden" id="cut_y" name="cut_y" />
+                            <input type="hidden" id="cut_w" name="cut_w" />
+                            <input type="hidden" id="cut_h" name="cut_h" />
+                            <div style="display: none">
+                                <div id="preview-pane" class="">
+                                    <div class="preview-container">
+                                        <img src="" class="jcrop-preview">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button id="submit" onclick="">上传</button>
+                </div>
+            </form>
+
         </div>
     </div>
 </body>
-<script type="text/javascript" src="js/jquery.min.js"></script>
+
 <script type="text/javascript" src="module/jcrop/js/jquery.Jcrop.js"></script>
 <script type="text/javascript" src="module/jcrop/js/api.js"></script>
 <script>
-    var jcrop_api;
+    var api;
+    var boundx,
+        boundy,
+        $preview = $('#preview-pane'),
+        $pcnt = $('#preview-pane .preview-container'),
+        $pimg = $('#preview-pane .preview-container img'),
 
+        xsize = $pcnt.width(),
+        ysize = $pcnt.height();
+    var jcrop_opt = {
+        // allowSelect: true, //允许新选框
+        // allowMove: true, //允许选框移动
+        // allowResize: true, //允许选框缩放
+        // trackDocument: true, //拖动选框时，允许超出图像以外的地方时继续拖动。
+        // baseClass: 'jcrop', //基础样式名前缀。说明：class="jcrop-holder"，更改的只是其中的 jcrop。例：假设值为 "test"，那么样式名会更改为 "test-holder"
+        // addClass: null, //添加样式。例：假设值为 "test"，那么会添加样式到class="jcrop-holder test"
+        // bgColor: 'black', //背景颜色。颜色关键字、HEX、RGB 均可。
+        // bgOpacity: 0.6, //背景透明度
+        // bgFade: false, //使用背景过渡效果
+        // borderOpacity: 0.4, //选框边框透明度
+        // handleOpacity: 0.5, //缩放按钮透明度
+        // handleSize: null, //缩放按钮大小
+        aspectRatio: 1, //选框宽高比。说明：width/height
+        // keySupport: true, //支持键盘控制。按键列表：上下左右（移动选框）、Esc（取消选框）
+        // createHandles: ['n', 's', 'e', 'w', 'nw', 'ne', 'se', 'sw'], //设置边角控制器
+        // createDragbars: ['n', 's', 'e', 'w'], //设置边框控制器
+        // createBorders: ['n', 's', 'e', 'w'], //设置边框
+        // drawBorders: true, //绘制边框
+        // dragEdges: true, //允许拖动边框
+        // fixedSupport: true, //支持 fixed，例如：IE6、iOS4
+        // touchSupport: null, //支持触摸事件
+        // shade: null, //使用更好的遮罩
+        boxWidth: 560, //画布宽度
+        // boxHeight: 0, //画布高度
+        // boundary: 2, //边界。说明：可以从边界开始拖动鼠标选择裁剪区域
+        // fadeTime: 400, //过度效果的时间
+        // animationDelay: 20, //动画延迟
+        // swingSpeed: 3, //过渡速度
+        // minSelect: [0, 0], //选框最小选择尺寸。说明：若选框小于该尺寸，则自动取消选择
+        // maxSize: [0, 0], //选框最大尺寸
+        // minSize: [0, 0], //选框最小尺寸
+        onChange: updateCoords, //选框改变时的事件
+        onSelect: updateCoords, //选框选定时的事件
+        // onDblClick: function () {}, //在选框内双击时的事件
+        // onRelease: function () {}, //取消选框时的事件
+
+        setSelect: [20, 20, 200, 200], //创建选框，参数格式为：[x, y, x2, y2]
+    };
     // In this example, since Jcrop may be attached or detached
     // at the whim of the user, I've wrapped the call into a function
-    initJcrop();
 
-    // The function is pretty simple
-    function initJcrop() //{{{
-    {
-        // Hide any interface elements that require Jcrop
-        // (This is for the local user interface portion.)
-        $('.requiresjcrop').hide();
-
-        // Invoke Jcrop in typical fashion
-        $('#target').Jcrop({
-            onRelease: releaseCheck,
-            onSelect: updateCoords
-        }, function () {
-
-            jcrop_api = this;
-            jcrop_api.animateTo([100, 100, 400, 300]);
-            // Setup and dipslay the interface for "enabled"
-            $('#can_click,#can_move,#can_size').attr('checked', 'checked');
-            $('#ar_lock,#size_lock,#bg_swap').attr('checked', false);
-            $('.requiresjcrop').show();
-
-        });
-
+    function load_img(input) {
+        console.log(input.files[0]);
+        $("#jcropModal").modal("show");
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.readAsDataURL(input.files[0]);
+            reader.onload = function (e) {
+                $('#cutimg').removeAttr('src');
+                $('#cutimg').attr('src', e.target.result);
+                $pimg.removeAttr('src');
+                $pimg.attr('src', e.target.result);
+                //初始化插件 这种方式有问题了废弃 应该是api有改动了
+                /* api = $.Jcrop('#cutimg', {
+                    setSelect: [ 20, 20, 200, 200 ],
+                    aspectRatio: xsize / ysize,
+                    onSelect: updateCoords,
+                    onChange: updateCoords
+                });
+                var bounds = api.getBounds();
+                boundx = bounds[0];
+                boundy = bounds[1];
+                $preview.appendTo(api.ui.holder); */
+                //这是另外一种处理方式。
+                $('#cutimg').Jcrop(jcrop_opt, function () {
+                    var bounds = this.getBounds();
+                    boundx = bounds[0];
+                    boundy = bounds[1];
+                    api = this;
+                    $preview.appendTo(api.ui.holder);
+                });
+            };
+            if (api != undefined) {
+                api.destroy();
+            }
+        }
+    }
+    //更新坐标
+    function updateCoords(obj) {
+        console.log(obj);
+        $("#cut_x").val(obj.x);
+        $("#cut_y").val(obj.y);
+        $("#cut_w").val(obj.w);
+        $("#cut_h").val(obj.h);
+        if (parseInt(obj.w) > 0) {
+            var rx = xsize / obj.w;
+            var ry = ysize / obj.h;
+            $pimg.css({
+                width: Math.round(rx * boundx) + 'px',
+                height: Math.round(ry * boundy) + 'px',
+                marginLeft: '-' + Math.round(rx * obj.x) + 'px',
+                marginTop: '-' + Math.round(ry * obj.y) + 'px'
+            });
+        }
     };
-
-    function updateCoords(c) {
-        $('#x').val(c.x);
-        $('#y').val(c.y);
-        $('#w').val(c.w);
-        $('#h').val(c.h);
-    };
-
-    function checkCoords() {
-        if (parseInt($('#w').val())) return true;
-        alert('Please select a crop region then press submit.');
-        return false;
-    };
-    // var jcrop_api = $.Jcrop('#cropbox', {
-    //     /*  aspectRatio:2/1, //这是宽高比*/
-    //     // minSize: [600, 300], //最小宽度，和高度
-    //     // maxSize: [600, 300], //最大宽度，和高度
-    //     allowSelect: true,
-    //     // setSelect: [0, 0, 600, 300], //初始区域
-    //     /*   bgColor:"#fff"颜色设置*/
-    //     /*  bgOpacity:0.1 透明度设置*/
-    //     boxWidth: 400, //同比缩放宽，和同比缩放高是一样的，一般来说设置一个就够了
-    //     onSelect: function (p) { //当选择完成时调用
-    //         console.log(p);
-    //     }
-    // });
-
-    // $('button.setSelect').click(function () {
-    //     jcrop_api.setSelect([100, 100, 300, 300]);
-    // });
-    // $('button.tellSelect').click(function () {
-    //     console.log(jcrop_api.tellSelect());
-    // });
 </script>
 
 </html>
