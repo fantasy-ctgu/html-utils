@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>leaves</title>
+    <link rel="shortcut icon" href="img/Windmill.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/leaves.css">
+    <link rel="stylesheet" href="module/cropper/cropper.css">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/leaves-form.js"></script>
+    <script src="js/leaves-ajax.js"></script>
+    <script src="js/leaves-tools.js"></script>
+    <script src="module/cropper/cropper.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="img-container col-md-6" style="height: 500px;">
+                <img src="https://i.postimg.cc/Mpnw84QW/1.png" alt="" id="cropper-img">
+            </div>
+            <div class="col-md-6 img-preview" style="width: 200px; height: 200px; overflow: hidden"></div>
+        </div>
+        <input type="file" id="replaceImg" name="file" accept="image/*">
+        <form>
+            <input type="text" name="x" id="dataX">
+            <input type="text" name="y" id="dataY">
+            <input type="text" name="width" id="dataWidth">
+            <input type="text" name="height" id="dataHeight">
+        </form>
+    </div>
+    <script>
+        let options = {
+            viewMode: 2, // 0:无限制; 1:将裁剪框限制为不超过画布的大小, 2:限制最小画布尺寸以适应容器,如果画布和容器的比例不同，则最小画布将在其中一个维度中被额外的空格包围。, 3:限制最小画布尺寸以填充容器。如果画布和容器的比例不同，则容器将无法将整个画布适合其中一个尺寸。
+            dragMode: 'move', // 'crop':创建一个新的裁剪框    'move':移动画布  'none':do nothing
+            aspectRatio: 1 / 1, // 设置裁剪框的宽高比。默认情况下，裁剪框是空闲比率。
+            data: {}, // 如果您已经存储了以前的裁剪数据，将在构建时自动传递给setData方法。
+            preview: '.img-preview', // 添加额外的元素（容器）进行预览。注意一定要设置small的宽高；最好和裁剪比例一致；还有如果要想正确的显示出裁剪的区域需要加上样式overflow: hidden; 
+            autoCropArea: 1, //介于0和1之间的数字。定义自动裁剪区域大小（百分比）， 1： 完全按照最大宽度后最大高度设置剪切框
+            modal: true, //显示图片上方的黑色模态并在裁剪框下面
+            guides: true, //—显示在裁剪框上方的虚线
+            checkCrossOrigin: true,
+            background: false, //显示容器的网格背景。（就是后面的马赛克）
+            movable: true, //启用移动图像。
+            rotatable: true, //启用旋转图像。
+            scalable: true, //启用缩放图像。
+            zoomable: true, //启用缩放图像。
+            zoomOnTouch: true, //启用通过拖动触摸缩放图像。
+            zoomOnWheel: true, //启用通过滚动鼠标放大图像。。
+            cropBoxMovable: true, // 启用通过拖动来移动裁剪框。
+            cropBoxResizable: true, // 启用通过拖动调整裁剪框的大小。。
+            toggleDragModeOnDblclick: false, //在裁剪器上点击两次时，启用“切割”和“移动”之间切换拖动模式。
+            minContainerWidth: 200, //容器的最小宽度。。
+            minContainerHeight: 100, //容器的最小高度。。。
+            ready: function () {
+                this.cropper && this.cropper.crop();
+                // 可以根据用户参入的比例， 进行更改剪切框比例
+                if (this.cropObj) {
+                    this.cropper && this.cropper.setAspectRatio((this.cropObj.width / this.cropObj.height))
+                }
+            }, //插件准备完成执行的函数（只执行一次
+            crop: function (e) {
+                let data = e.detail
+                dataX.value = parseInt(data.x);
+                dataY.value = parseInt(data.y);
+                dataWidth.value = parseInt(data.width);
+                dataHeight.value = parseInt(data.height);
+            }, // 剪裁框发生变化执行的函数
+            cropstart: function (e) {
+                console.log(e.type, e.detail.action);
+            },
+            cropmove: function (e) {
+                console.log(e.type, e.detail.action);
+            }, // 剪裁框移动时执行的函数。
+            cropend: function (e) {
+                console.log(e.type, e.detail.action);
+            },
+            zoom: function (e) {
+                console.log(e.type, e.detail.ratio);
+            } // 剪裁框缩放的时候执行的函数
+        };
+        var Cropper = window.Cropper;
+        var container = document.querySelector('.img-container');
+        var image = container.getElementsByTagName('img').item(0);
+        var dataX = document.getElementById('dataX');
+        var dataY = document.getElementById('dataY');
+        var dataHeight = document.getElementById('dataHeight');
+        var dataWidth = document.getElementById('dataWidth');
+
+        var cropper = new Cropper(image, options);
+
+
+        // Import image
+        var inputImage = document.getElementById('replaceImg');
+        inputImage.addEventListener("change", function () {
+            var files = this.files;
+            var file;
+            if (cropper && files && files.length) {
+                file = files[0];
+
+                if (/^image\/\w+/.test(file.type)) {
+                    image.src = URL.createObjectURL(file);
+                    cropper.destroy();
+                    cropper = new Cropper(image, options);
+                    inputImage.value = null;
+                } else {
+                    window.alert('Please choose an image file.');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

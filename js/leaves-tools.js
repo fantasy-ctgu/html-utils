@@ -2,7 +2,7 @@
  * @Author: Fantasy
  * @Date: 2019-04-09 21:06:28
  * @LastEditors: Fantasy
- * @LastEditTime: 2019-06-08 10:30:24
+ * @LastEditTime: 2020-02-22 16:14:50
  * @Descripttion: 其它工具
  * @Email: 776474961@qq.com
  */
@@ -110,116 +110,4 @@ function initProgress(i) {
 		$(this).find('li').removeClass('active');
 		$(this).find('li:lt(' + a + ')').addClass('active');
 	})
-}
-
-function initDistrict({
-	level1,
-	level2 = null,
-	level3 = null,
-	level4 = null,
-	level5 = null,
-	method = "client",
-	dataurl
-}) {
-	domObj = [];
-	domObj.push(level1)
-	domObj.push(level2 || null)
-	domObj.push(level3 || null)
-	domObj.push(level4 || null)
-	domObj.push(level5 || null)
-	// 给每个select添加onchange事件
-	for (let p = 0; p < domObj.length - 1; p++) {
-		if (domObj[p] == null) continue;
-		$id(domObj[p]).on("change", function () {
-			//获取当前select的选中项的code
-			var currentCode = $("#" + domObj[p] + " option:selected").attr("code");
-			//清空原有下级select的数据
-			$id(domObj[p + 1]).empty()
-			var result = getSuit(p + 2, currentCode);
-			// 更新下级select
-			$.each(result, function (i, value) {
-				$id(domObj[p + 1]).append("<option value='" + result[i]['name'] + "' code='" + result[i]['code'] + "'>" + result[i]['name'] + "</option>");
-			});
-			// 更新下下级
-			$id(domObj[p + 1]).trigger("change");
-		});
-	}
-	var district;
-	if( method == "client"){
-		// 获取行政区
-		$.ajax({
-			url: "./js/district.json",
-			dataType: "text",
-			async: false,
-			success: function (data) {
-				district = eval('(' + data + ')');
-			},
-			/**
-			 * 
-			 * @param {*} XMLHttpRequest 错误信息、捕获的错误对象
-			 * @param {*} textStatus timeout、error、notmodified、parsererror
-			 * @param {*} errorThrown 
-			 */
-			error: function (XMLHttpRequest, textStatus, errorThrown) {
-				console.error(XMLHttpRequest);
-				alert("系统错误");
-			}
-		});
-	}
-	//初始化顶级select
-	var result = getSuit(1);
-	$.each(result, function (i, value) {
-		var $option = $("<option value='" + result[i]['name'] + "' code='" + result[i]['code'] + "'>" + result[i]['name'] + "</option>");
-		$id(domObj[0]).append($option);
-	});
-	$id(domObj[0]).trigger("change");
-	/**
-	 * 筛选子级行政区
-	 * @param {integer} level 行政区等级
-	 * @param {String} parentCode 父级行政区代码
-	 */
-	function getSuit(level, parentCode = 0) {
-		result = []
-		if(method == "server"){
-			$.ajax({
-				url: dataurl,
-				dataType: "json",
-				data:{
-					"level": level,
-					"parentCode": parentCode
-				},
-				async: false,
-				success: function (data) {
-					result = data;
-				},
-				/**
-				 * 
-				 * @param {*} XMLHttpRequest 错误信息、捕获的错误对象
-				 * @param {*} textStatus timeout、error、notmodified、parsererror
-				 * @param {*} errorThrown 
-				 */
-				error: function (XMLHttpRequest, textStatus, errorThrown) {
-					console.error(XMLHttpRequest);
-					alert("系统错误");
-				}
-			});
-			return result;
-		}else{
-			$.each(district, function (i, value) {
-				obj = district[i];
-				if (obj['level'] == level) {
-					if (parentCode) {
-						parentCode = parentCode.strip("0");
-						var re = new RegExp("^" + parentCode, "gim");
-						if (re.test(obj["code"])) {
-							result.push(obj);
-						}
-					} else {
-						result.push(obj);
-					}
-				}
-			});
-			return result;
-		}
-	}
 }

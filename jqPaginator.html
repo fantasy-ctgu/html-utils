@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>leaves</title>
+    <link rel="shortcut icon" href="img/Windmill.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/leaves.css">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/leaves-form.js"></script>
+    <script src="js/leaves-ajax.js"></script>
+    <script src="js/leaves-tools.js"></script>
+
+    <script src="module/jqPaginator/jq-paginator.min.js"></script>
+    <style>
+        ul{
+            list-style: none;
+            user-select: none;
+        }
+        ul li{
+            float: left;
+            margin-left: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div>
+                <div id="result"></div>
+                <ul id="demo"></ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        $("#demo").jqPaginator({
+            pageSize: 20,
+            totalCounts: 200,
+            visiblePages: 20,
+            activeClass: "current",
+            disableClass: "disabled",
+            currentPage: 1,
+            first: '<li class="first"><a href="javascript:void(0);">首页<\/a><\/li>',
+            prev: '<li class="prev"><a href="javascript:void(0);">上一页<\/a><\/li>',
+            next: '<li class="next"><a href="javascript:void(0);">下一页<\/a><\/li>',
+            last: '<li class="last"><a href="javascript:void(0);">末页<\/a><\/li>',
+            page: '<li class="page"><a href="javascript:void(0);">{{page}}<\/a><\/li>',
+            onPageChange: function (n, test) {
+                console.log(test);
+                $("#result").html(n)
+            }
+        })
+    </script>
+</body>
+
+</html>

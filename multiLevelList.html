@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>leaves</title>
+    <link rel="shortcut icon" href="img/Windmill.png" type="image/x-icon">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/leaves.css">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/leaves-form.js"></script>
+    <script src="js/leaves-ajax.js"></script>
+    <script src="js/leaves-tools.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div id="testNode"></div>
+
+            <div id="testNode2"></div>
+
+            <div id="testSelct">
+                <select class="selectClass" href='adbc'>
+                </select>
+                <option value="" class="optionClass"></option>
+            </div>
+        </div>
+    </div>
+    <script src="js/MultiLevelList.js"></script>
+    <script>
+        function onChose2() {
+            console.log(this);
+        }
+
+        var options = {
+            target: "#testNode",
+            onChoseEnd: onChose2,
+            initData: ["beijing", "shanghai"],
+            onChose2: onChose2,
+            dataUrl: "test",
+            selectSrc: ".selectClass",
+            optionSrc: ".optionClass"
+        };
+        var test1 = new MultiLevelList(options);
+
+        var options2 = {
+            target: "#testNode2",
+            onChose2: onChose2,
+            onChoseEnd: onChose2,
+            dataUrl: "fwe",
+            initData: ["shanghai", "shanghai"],
+            // selectSrc: ".selectClass",
+            // optionSrc: ".optionClass"
+        };
+        var test2 = new MultiLevelList(options2);
+    </script>
+</body>
+
+</html>
